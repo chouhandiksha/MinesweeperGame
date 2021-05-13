@@ -9,9 +9,7 @@ public class GameMinesweepData implements Serializable{
 	private String gameDate;
 	private int points;
 	
-	GameMinesweepData (){
-		
-	}
+	
 	
 	GameMinesweepData( String gameDate, MinesweeperGame gm , int points) {
 		
@@ -21,11 +19,13 @@ public class GameMinesweepData implements Serializable{
 		
 	}
 	
-	
+GameMinesweepData (){
+		
+	}
 	
 	
 	/*
-	 * Getter and Setter functions below for GameMinesweepData Class.
+	 * Added Getter and Setter functions below for GameMinesweepData Class.
 	 */
 
 
