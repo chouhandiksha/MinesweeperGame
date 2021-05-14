@@ -6,6 +6,7 @@
 
 /**
  * @author Admin dc4454
+ * After executing server (GameServer.java)--> Start code run from here 
  *
  */
 
@@ -14,13 +15,13 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.io.Serializable;
 
-import javax.swing.BoxLayout;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
-
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 
 
@@ -29,7 +30,6 @@ public class MinesweeperGame extends JFrame implements Serializable{
 
 	
 	public void initGame() {
-		
 		
 		
         JLabel statusbar = new JLabel("");

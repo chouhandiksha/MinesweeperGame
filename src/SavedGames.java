@@ -1,8 +1,14 @@
+/*
+ * *Returns details of saved games
+ * **Author ~ dc4454
+ */
+
 import java.io.Serializable;
 
 public class SavedGames implements Serializable{
 
-	private int id, points;
+	private int points;
+	private int id;
 	
 	private String gamedate;
 	

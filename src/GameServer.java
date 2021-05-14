@@ -10,9 +10,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.Connection;
+
 
 public class GameServer {
 
@@ -30,7 +31,7 @@ public class GameServer {
 	public void execute() {
 		try {
 
-			connection = DriverManager.getConnection("jdbc:sqlite:minesweeperfinaldata.db");
+			connection = DriverManager.getConnection("jdbc:sqlite:javaminesweepdata.db");
 
 		} catch (SQLException e) {
 			System.err.println("Error: " + e);
@@ -104,7 +105,7 @@ public class GameServer {
 		
 		GameMinesweepData data = new GameMinesweepData();
 
-		String sql = "Select gamedate, gameobj, points from minesweepertable where id = ?";
+		String sql = "Select gamedate, gameobj, points, fields, minesLeft from minesweepertable where id = ?";
 		System.out.println(id);
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
@@ -124,6 +125,8 @@ public class GameServer {
 			
 			System.out.println("Game Date:" + data.getGameDate());
 			System.out.println("Points:" + data.getPoints());
+			System.out.println("Fields:" + data.getFields());
+			System.out.println("minesLeft:" + data.getMinesLeft());
 			resultSet.close();
 			ps.close();
 
@@ -136,12 +139,17 @@ public class GameServer {
 	
 	
 	public int saveData(GameMinesweepData data) {
+		
+		
 		System.out.println("Date: " + data.getGameDate());
 		System.out.println("GameData: " + data.getGm().toString());
 		System.out.println("Points: " + data.getPoints());
+		System.out.println("Fields: " + data.getFields());
+		System.out.println("MinesLeft: " + data.getMinesLeft());
+		
 	
 
-		String sqlInsertQuery = "INSERT INTO minesweepertable(gamedate, gameobj, points) values(?,?,?)";
+		String sqlInsertQuery = "INSERT INTO minesweepertable(gamedate, gameobj, points, fields, minesLeft) values(?,?,?,?,?)";
 		try {
 			PreparedStatement ps = connection.prepareStatement(sqlInsertQuery);
 
@@ -155,6 +163,8 @@ public class GameServer {
 			ops.close();
 			ps.setBytes(2, objByte.toByteArray());
 			ps.setInt(3, data.getPoints());
+			ps.setString(4, data.getFields());
+			ps.setString(5, data.getMinesLeft());
 
 			int result = ps.executeUpdate();
 			ps.close();

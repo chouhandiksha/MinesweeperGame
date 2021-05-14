@@ -1,3 +1,8 @@
+/*
+ * *Initializes details of game parameters such as Data&Time, Game object, Points, etc
+ * **Author ~ dc4454
+ */
+
 import java.io.Serializable;
 
 
@@ -9,11 +14,11 @@ public class GameMinesweepData implements Serializable{
 	private String gameDate;
 	private int points;
 	private String fields;
-	private int minesLeft;
+	private String minesLeft;
 	
 	
 	
-	GameMinesweepData( String gameDate, MinesweeperGame gm , int points, String fields, int minesLeft) {
+	GameMinesweepData( String gameDate, MinesweeperGame gm , int points, String fields, String minesLeft) {
 		
 		this.gameDate = gameDate;
 		this.gm = gm;
@@ -65,11 +70,11 @@ GameMinesweepData (){
 		this.fields = fields;
 	}
 
-	public int getMinesLeft() {
+	public String getMinesLeft() {
 		return minesLeft;
 	}
 
-	public void setMinesLeft(int minesLeft) {
+	public void setMinesLeft(String minesLeft) {
 		this.minesLeft = minesLeft;
 	}
 
