@@ -14,9 +14,11 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.io.Serializable;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
+import javax.swing.JPanel;
 
 
 
@@ -31,12 +33,14 @@ public class MinesweeperGame extends JFrame implements Serializable{
 		
 		
         JLabel statusbar = new JLabel("");
+        JLabel timerbar = new JLabel("Timer: 1000");
         JMenuBar menubar = new JMenuBar();
         add(menubar, BorderLayout.NORTH);
+        add(timerbar);
         add(statusbar, BorderLayout.SOUTH);
 		
 		
-		add(new MinesweeperGUI(statusbar, menubar));
+		add(new MinesweeperGUI(statusbar, menubar , timerbar));
 
 	    setResizable(false);
 	    pack();

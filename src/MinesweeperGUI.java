@@ -1,6 +1,7 @@
 
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -9,6 +10,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.BoxLayout;
@@ -23,6 +31,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+
+
+
+
+
+
+
 
 
 
@@ -58,32 +73,53 @@ public class MinesweeperGUI extends JPanel {
     private Image[] img;
 
     private int allCells;
+    
     private final JLabel statusbar;
+    private final JLabel timerbar;
+   
+    private boolean gameWon = false;
+    
     private JMenuBar menubar;
 	private JMenu menuBarOptions;
 	private JMenuItem menuNewGame, menuOpenGame, menuSaveGame, menuExit;
+	private ArrayList<SavedGames> prevGames;
 	
-	
-	private JFrame saveFrame;
-	private JPanel savePanel, editPanel;
+	private JFrame saveFrame, openGameFrame;
+	private JPanel savePanel, editPanel, openGamePanel, loadGamePanel;
 	private JButton btnSave;
 	
+	private JButton[] btnOpenGame;
+	
+	//Server-client socket Variables
+	private Socket socket;
+	private ObjectOutputStream clientOpStream;
+	private ObjectInputStream clientIpStream;
+	
+	
+	private static MinesweeperGame minesweepGameObj = new MinesweeperGame();
+	
 
-    public MinesweeperGUI(JLabel statusbar, JMenuBar menubar) {
+    public MinesweeperGUI(JLabel statusbar, JMenuBar menubar, JLabel timerbar) {
     	
     	
     	
-    	
+    	this.timerbar = timerbar;
         this.statusbar = statusbar;
         this.menubar = menubar ;
         initBoard();
     }
 
 
+	
+	
+
     
     
     private void initBoard() {
 
+    	
+    	
+    	
         setPreferredSize(new Dimension(BOARD_WIDTH, BOARD_HEIGHT));
         
         img = new Image[NUM_IMAGES];
@@ -96,7 +132,34 @@ public class MinesweeperGUI extends JPanel {
 
         addMouseListener(new MinesAdapter());
         addMenu();
-        newGame();
+       	newGame();
+        
+        
+    }
+    
+    
+    
+    
+private void initBoardLoaded(String fields, int minesLeft, int points) {
+
+    	
+    	
+    	
+        setPreferredSize(new Dimension(BOARD_WIDTH, BOARD_HEIGHT));
+        
+        img = new Image[NUM_IMAGES];
+
+        for (int i = 0; i < NUM_IMAGES; i++) {
+
+            var path = "src/resources/" + i + ".png";
+            img[i] = (new ImageIcon(path)).getImage();
+        }
+
+        addMouseListener(new MinesAdapter());
+        addMenu();
+       	newGame();
+        
+        
     }
 
     
@@ -115,6 +178,8 @@ public class MinesweeperGUI extends JPanel {
 
     
     
+    
+    
     public void addOptionItems(){
 
 		menuNewGame = new JMenuItem("New");
@@ -123,7 +188,7 @@ public class MinesweeperGUI extends JPanel {
 		
 		menuOpenGame = new JMenuItem("Open");
 		menuOpenGame.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
-	//	menuOpenGame.addActionListener(new MenuHandler());
+		menuOpenGame.addActionListener(new MenuHandler());
 		
 		menuSaveGame = new JMenuItem("Save");
 		menuSaveGame.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
@@ -153,7 +218,7 @@ public class MinesweeperGUI extends JPanel {
 				repaint();
 				newGame();
 			} else if(source == menuOpenGame){
-		//		loadGameWindow();
+				openSavedGameWindow();
 			} else if ( source == menuSaveGame){
 				saveGameWindow();
 			} else if ( source == menuExit){
@@ -161,6 +226,276 @@ public class MinesweeperGUI extends JPanel {
 			}
 		}
 	}
+    
+    
+    
+    
+    /*
+     * Save Game helper inner class for connecting to socket and saving the game object. 
+     */
+    
+    class SaveGameHelper implements ActionListener {
+
+		public void actionPerformed(ActionEvent event) {
+			
+			
+			
+			LocalDateTime currDateObj = LocalDateTime.now();
+		    System.out.println("Before formatting: " + currDateObj);
+		    DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss"); 
+
+		    String gameCurrDate = currDateObj.format(dateFormat);
+			
+			System.out.println("Starting Connection...");
+			try{
+		          socket = new Socket("127.0.0.1", 5001);
+		          clientOpStream = new ObjectOutputStream(socket.getOutputStream());
+		          clientIpStream = new ObjectInputStream(socket.getInputStream());
+		             
+		          System.out.println("Established connection...");
+		          int init = clientIpStream.read();
+		          System.out.println(init);
+		          
+		          
+		          
+		          
+//		          for (int i = 0; i < y.getDiceLength(); i++) {
+//						System.out.println("Dice "+i+":"+y.getDice(i).getHoldState());
+//			        }
+		          
+//		          int[] scores = new int[18];
+//		          
+//		          for (int i = 0; i < 18; i++) {
+//		        	  String val = txtScore[i].getText();
+//		        	  val = val.equals("-") ? "0" : val;
+//		        	  
+//		        	  scores[i] = Integer.parseInt(val);
+//		          }
+		          
+		          
+		          
+		          
+		          
+		          int points=30; //Giving some value for now
+		          
+		          
+		          String f = "";
+		          for(int x: field) {
+		        	  f=f+x+" ";
+		          }
+		          
+		          
+		          GameMinesweepData gmData = new GameMinesweepData(gameCurrDate, minesweepGameObj, points, f , minesLeft);
+		          
+		          //Code 200: to save data
+		          clientOpStream.write(200);
+		          clientOpStream.flush();
+		          clientOpStream.writeObject(gmData);
+		          clientOpStream.flush();
+
+		          int res = clientIpStream.read();
+		          System.out.println(res);
+		          mkSavePopup(res);
+		          
+		          clientOpStream.close();
+		          clientIpStream.close();
+	              socket.close();
+		          
+		      }catch(IOException ex){
+		          ex.printStackTrace();
+		      }
+
+			saveFrame.setVisible(false);
+		}
+	}
+    
+    
+    /*
+     * Get Timer value for score
+     */
+    
+//    public static int getTimerValue(int i){
+//		return Integer.valueOf(timerlbl.getText());
+//	}
+//    
+    
+    public void mkSavePopup(int code){
+		if (code == 201) {
+			JOptionPane.showMessageDialog(new JPanel(), "Minesweeper game saved!");
+		} else {
+			JOptionPane.showMessageDialog(new JPanel(), "Some error occured, please try again");
+		}
+		
+	}
+    
+    
+ 
+    public void openSavedGameWindow(){
+		openGameFrame = new JFrame();
+		openGameFrame.setTitle("Open Minesweeper Game");
+		openGameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		openGameFrame.setSize(400,750);
+		openGameFrame.setResizable(true);
+
+		openGamePanel = new JPanel(new BorderLayout());
+		openGameFrame.getContentPane().add(openGamePanel);
+
+		loadGamePanel = new JPanel();
+		openGamePanel.add(loadGamePanel, BorderLayout.NORTH);
+		loadGamePanel.setLayout(new BoxLayout(loadGamePanel,BoxLayout.Y_AXIS));
+		
+		prevGames = getPrevGames();
+		btnOpenGame = new JButton[prevGames.size()];
+		
+		
+		for (int i = 0; i < prevGames.size(); i++) {
+			
+			btnOpenGame[i] = new JButton(prevGames.get(i).getSavedGame());
+			btnOpenGame[i].setHorizontalAlignment(SwingConstants.CENTER);
+			btnOpenGame[i].setPreferredSize(new Dimension(400,30));
+			btnOpenGame[i].setMaximumSize(new Dimension(400,30));
+			btnOpenGame[i].addActionListener(new LoadHelper());
+			
+			loadGamePanel.add(btnOpenGame[i]);
+		}
+
+		openGameFrame.setVisible(true);
+	}
+    
+    
+    
+    class LoadHelper implements ActionListener {
+
+    	
+		public void actionPerformed(ActionEvent event) {
+			
+			
+			GameMinesweepData data = new GameMinesweepData();
+			
+			Object source = event.getSource();
+			
+			int id = -1;
+			for(int i = 0; i < btnOpenGame.length; i++){
+				if(source == btnOpenGame[i]){
+					id = prevGames.get(i).getId();
+					break;
+				}
+			}
+			
+			
+			//Connect to server and get data
+			System.out.println("Establishing Connection");
+			try{
+		          socket = new Socket("127.0.0.1", 5001);
+		          clientOpStream = new ObjectOutputStream(socket.getOutputStream());
+		          clientIpStream = new ObjectInputStream(socket.getInputStream());
+		             
+		          System.out.println("Connected...");
+		          int init = clientIpStream.read();
+		          System.out.println(init);
+		          
+		          //Code 204: to get particular saved data
+		          clientOpStream.write(204);
+		          clientOpStream.flush();
+		          
+		          clientOpStream.write(id);
+		          clientOpStream.flush();
+		          
+		          data = (GameMinesweepData) clientIpStream.readObject();
+		          System.out.println(data);
+		          
+		          clientOpStream.close();
+		          clientIpStream.close();
+	              socket.close();
+		          
+		      }catch(ClassNotFoundException | IOException ex){
+		          ex.printStackTrace();
+		      }
+			
+			openGameFrame.setVisible(false);
+			
+			
+			
+			//Set Player Name
+			//txtPlayerName.setText(data.getPlayerName());
+			
+			minesweepGameObj = data.getGm();
+			
+			//minesweepGameObj.setScoreCanChange(data.getScoreCanChange());
+			
+			//Set dice values
+//			for(int i = 0; i < y.getDiceLength(); i++){
+//				String dieFaceValue = "/images/die"+String.valueOf(y.getDice(i).getFaceValue())+".png";
+//				lblDice[i].setIcon(new ImageIcon(new ImageIcon(this.getClass().getResource(dieFaceValue)).getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT)));
+//				lblDice[i].setText(String.valueOf(y.getDice(i).getFaceValue()));
+//				
+//			}
+//			lblTurnCnt.setText("Turn: "+String.valueOf(y.getScoreCount()));
+//			lblRollCnt.setText("Roll: "+String.valueOf(y.getRollCount()));
+			
+			//y.print(); //for debugging
+			
+			//Set dice hold states, if any
+//			for (int i = 0; i < y.getDiceLength(); i++) {
+//				System.out.println("Dice "+i+":"+y.getDice(i).getHoldState());
+//				if (y.getDice(i).getHoldState() == true){
+//					ckbDice[i].setSelected(true);
+//					lblDice[i].setEnabled(false);
+//					
+//				}
+//	        }
+			
+			//Set scores
+//			for (int i = 0; i < 18; i++) {
+//				txtScore[i].setText(String.valueOf(data.getScores()[i]));
+//				
+//				if (i < 6 || (i > 8 && i < 16)) {
+//					txtScore[i].setForeground(Color.BLUE);
+//				}
+//				if (!y.getScoreCanChange()[i]) {
+//					btnScore[i].setForeground(new Color(100,150,12));
+//				}
+//	        }
+
+		}
+		
+		
+	}
+    
+    
+    
+    public ArrayList<SavedGames> getPrevGames() {
+    	
+		ArrayList<SavedGames> lists = new ArrayList<>();
+		
+		
+		System.out.println("Starting Connection...");
+		try{
+	          socket = new Socket("127.0.0.1", 5001);
+	          clientOpStream = new ObjectOutputStream(socket.getOutputStream());
+	          clientIpStream = new ObjectInputStream(socket.getInputStream());
+	             
+	          System.out.println("Connected...");
+	          int init = clientIpStream.read();
+	          System.out.println(init);
+	          
+	          //Code 202: to get list of saved data
+	          clientOpStream.write(202);
+	          clientOpStream.flush();
+	          
+	          lists = (ArrayList<SavedGames>) clientIpStream.readObject();
+	          
+	          clientOpStream.close();
+	          clientIpStream.close();
+              socket.close();
+	          
+	      }catch(ClassNotFoundException | IOException ex){
+	          ex.printStackTrace();
+	      }
+		
+		return lists;
+	}
+    
     
     
     private void newGame() {
@@ -283,7 +618,7 @@ public class MinesweeperGUI extends JPanel {
 		btnSave.setHorizontalAlignment(SwingConstants.CENTER);
 		btnSave.setPreferredSize(new Dimension(150,30));
 		btnSave.setMaximumSize(new Dimension(150,30));
-	//	btnSave.addActionListener(new SaveHandler());
+		btnSave.addActionListener(new SaveGameHelper());
 		
 		savePanel.add(btnSave);
 
@@ -383,6 +718,100 @@ public class MinesweeperGUI extends JPanel {
 
     }
 
+    
+    private void loadedGame() {
+
+        int cell;
+
+        var random = new Random();
+        inGame = true;
+        minesLeft = N_MINES;
+
+        allCells = N_ROWS * N_COLS;
+        field = new int[allCells];
+
+        for (int i = 0; i < allCells; i++) {
+
+            field[i] = COVER_FOR_CELL;
+        }
+
+        statusbar.setText(Integer.toString(minesLeft));
+
+        int i = 0;
+
+        while (i < N_MINES) {
+
+            int position = (int) (allCells * random.nextDouble());
+
+            if ((position < allCells)
+                    && (field[position] != COVERED_MINE_CELL)) {
+
+                int current_col = position % N_COLS;
+                field[position] = COVERED_MINE_CELL;
+                i++;
+
+                if (current_col > 0) {
+                    cell = position - 1 - N_COLS;
+                    if (cell >= 0) {
+                        if (field[cell] != COVERED_MINE_CELL) {
+                            field[cell] += 1;
+                        }
+                    }
+                    cell = position - 1;
+                    if (cell >= 0) {
+                        if (field[cell] != COVERED_MINE_CELL) {
+                            field[cell] += 1;
+                        }
+                    }
+
+                    cell = position + N_COLS - 1;
+                    if (cell < allCells) {
+                        if (field[cell] != COVERED_MINE_CELL) {
+                            field[cell] += 1;
+                        }
+                    }
+                }
+
+                cell = position - N_COLS;
+                if (cell >= 0) {
+                    if (field[cell] != COVERED_MINE_CELL) {
+                        field[cell] += 1;
+                    }
+                }
+
+                cell = position + N_COLS;
+                if (cell < allCells) {
+                    if (field[cell] != COVERED_MINE_CELL) {
+                        field[cell] += 1;
+                    }
+                }
+
+                if (current_col < (N_COLS - 1)) {
+                    cell = position - N_COLS + 1;
+                    if (cell >= 0) {
+                        if (field[cell] != COVERED_MINE_CELL) {
+                            field[cell] += 1;
+                        }
+                    }
+                    cell = position + N_COLS + 1;
+                    if (cell < allCells) {
+                        if (field[cell] != COVERED_MINE_CELL) {
+                            field[cell] += 1;
+                        }
+                    }
+                    cell = position + 1;
+                    if (cell < allCells) {
+                        if (field[cell] != COVERED_MINE_CELL) {
+                            field[cell] += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    
     @Override
     public void paintComponent(Graphics g) {
 
@@ -430,9 +859,11 @@ public class MinesweeperGUI extends JPanel {
 
             inGame = false;
             statusbar.setText("Game won");
+            gameWon = true;
 
         } else if (!inGame) {
             statusbar.setText("Game lost");
+            gameWon = false;
         }
     }
     

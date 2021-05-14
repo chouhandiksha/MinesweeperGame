@@ -8,14 +8,18 @@ public class GameMinesweepData implements Serializable{
 	private MinesweeperGame gm;
 	private String gameDate;
 	private int points;
+	private String fields;
+	private int minesLeft;
 	
 	
 	
-	GameMinesweepData( String gameDate, MinesweeperGame gm , int points) {
+	GameMinesweepData( String gameDate, MinesweeperGame gm , int points, String fields, int minesLeft) {
 		
 		this.gameDate = gameDate;
 		this.gm = gm;
 		this.points = points;
+		this.fields = fields;
+		this.minesLeft = minesLeft;
 		
 	}
 	
@@ -51,6 +55,22 @@ GameMinesweepData (){
 
 	public void setPoints(int points) {
 		this.points = points;
+	}
+
+	public String getFields() {
+		return fields;
+	}
+
+	public void setFields(String fields) {
+		this.fields = fields;
+	}
+
+	public int getMinesLeft() {
+		return minesLeft;
+	}
+
+	public void setMinesLeft(int minesLeft) {
+		this.minesLeft = minesLeft;
 	}
 
 	

@@ -170,7 +170,7 @@ public class GameServer {
 	public ArrayList<SavedGames> getSavedGameData() {
 
 		// Get saved game states
-		ArrayList<SavedGames> lists = new ArrayList<SavedGames>();
+		ArrayList<SavedGames> saveGamesList = new ArrayList<SavedGames>();
 		
 		int id, score;
 		String datetime;
@@ -188,9 +188,9 @@ public class GameServer {
 				score = resultSet.getInt(3);
 
 				SavedGames savedGames = new SavedGames(id, datetime, score);
-				System.out.println("Fetched: " + savedGames.getSavedGame());
+				System.out.println("Loaded: " + savedGames.getSavedGame());
 
-				lists.add(savedGames);
+				saveGamesList.add(savedGames);
 			}
 
 			resultSet.close();
@@ -199,8 +199,9 @@ public class GameServer {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
-		return lists;
+		
+		
+		return saveGamesList;
 	}
 
 	
