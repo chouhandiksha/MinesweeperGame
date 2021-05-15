@@ -1,7 +1,12 @@
-/*
- * *Creates Server for the Database socket connection
- * **Author ~ dc4454
+
+/**
+ * @author Admin dc4454
+ * Creates Server for the Database socket connection
+ * Run it First
+ *  
+ *
  */
+
 
 import java.io.*;
 import java.net.*;
@@ -25,7 +30,7 @@ public class GameServer {
 	}
 
 	/*
-	 * Connecting to database minesweeperfinaldata.db
+	 * Connecting to database javaminesweepdata.db
 	 */
 
 	public void execute() {
@@ -137,7 +142,9 @@ public class GameServer {
 		return data;
 	}
 	
-	
+	/*
+	 * Save the data with all the fields
+	 */
 	public int saveData(GameMinesweepData data) {
 		
 		
@@ -150,10 +157,11 @@ public class GameServer {
 	
 
 		String sqlInsertQuery = "INSERT INTO minesweepertable(gamedate, gameobj, points, fields, minesLeft) values(?,?,?,?,?)";
+		
 		try {
-			PreparedStatement ps = connection.prepareStatement(sqlInsertQuery);
+			PreparedStatement preps = connection.prepareStatement(sqlInsertQuery);
 
-			ps.setString(1, data.getGameDate());
+			preps.setString(1, data.getGameDate());
 
 			ByteArrayOutputStream objByte = new ByteArrayOutputStream();
 
@@ -161,13 +169,13 @@ public class GameServer {
 
 			ops.writeObject(data);
 			ops.close();
-			ps.setBytes(2, objByte.toByteArray());
-			ps.setInt(3, data.getPoints());
-			ps.setString(4, data.getFields());
-			ps.setString(5, data.getMinesLeft());
+			preps.setBytes(2, objByte.toByteArray());
+			preps.setInt(3, data.getPoints());
+			preps.setString(4, data.getFields());
+			preps.setString(5, data.getMinesLeft());
 
-			int result = ps.executeUpdate();
-			ps.close();
+			int result = preps.executeUpdate();
+			preps.close();
 
 			return result > 0 ? 201 : 404;
 
@@ -184,13 +192,16 @@ public class GameServer {
 		
 		int id, score;
 		String datetime;
-
+		
+		// Running the select query.
 		String sqlSelectQuery = "Select id, gamedate, points from minesweepertable";
+		
 		try {
 			
 			PreparedStatement ps = connection.prepareStatement(sqlSelectQuery);
 			ResultSet resultSet = ps.executeQuery();
 
+		// Initialising variables
 			while (resultSet.next()) {
 
 				id = resultSet.getInt(1);
@@ -198,15 +209,19 @@ public class GameServer {
 				score = resultSet.getInt(3);
 
 				SavedGames savedGames = new SavedGames(id, datetime, score);
-				System.out.println("Loaded: " + savedGames.getSavedGame());
+				System.out.println("Loaded data for saved game: " + savedGames.getSavedGame());
 
 				saveGamesList.add(savedGames);
 			}
 
+			
 			resultSet.close();
+			
 			ps.close();
 
-		} catch (SQLException e) {
+			
+		} catch (SQLException e) { // catching exception
+			
 			e.printStackTrace();
 		}
 		

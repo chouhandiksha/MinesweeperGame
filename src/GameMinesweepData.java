@@ -1,6 +1,10 @@
-/*
- * *Initializes details of game parameters such as Data&Time, Game object, Points, etc
- * **Author ~ dc4454
+
+
+/**
+ * @author Admin dc4454
+ * Initializes details of game parameters such as Data&Time, Game object, Points, etc
+ *  
+ *
  */
 
 import java.io.Serializable;
@@ -28,9 +32,12 @@ public class GameMinesweepData implements Serializable{
 		
 	}
 	
-GameMinesweepData (){
+	
+	GameMinesweepData (){
 		
 	}
+	
+	
 	
 	
 	/*

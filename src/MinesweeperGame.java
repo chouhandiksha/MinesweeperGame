@@ -1,25 +1,16 @@
 
-
-/**
- * 
- */
-
 /**
  * @author Admin dc4454
- * After executing server (GameServer.java)--> Start code run from here 
+ * After executing server (GameServer.java)--> Start code run from here.
+ *  Main file
  *
  */
 
 import java.awt.BorderLayout;
-import java.awt.Color;
+
 import java.awt.EventQueue;
 import java.io.Serializable;
-
-
 import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-
-import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
@@ -59,17 +50,10 @@ public class MinesweeperGame extends JFrame implements Serializable{
 		
 		EventQueue.invokeLater(() -> {
 
-            var ex = new MinesweeperGame();
-            ex.setVisible(true);
-            ex.initGame();
+            var mGame = new MinesweeperGame();
+            mGame.setVisible(true);
+            mGame.initGame();
         });
-
-		
-		
-		
-		
-		
-
 		
 		
 	}

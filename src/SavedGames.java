@@ -1,6 +1,9 @@
-/*
- * *Returns details of saved games
- * **Author ~ dc4454
+
+/**
+ * @author Admin dc4454
+ * Returns details of saved games
+ *  
+ *
  */
 
 import java.io.Serializable;
